@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RB Advocacia – Gestão</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --rb-red: #8B1A1A;
+  --rb-red-dark: #6B1212;
+  --rb-red-light: #A32020;
+  --rb-green: #4A5E2A;
+  --rb-green-light: #5C7234;
+  --rb-cream: #F5F0E8;
+  --rb-sand: #E8E4DC;
+  --rb-brown: #3D2B1F;
+  --bg: #F5F0E8;
+  --surface: #FFFFFF;
+  --surface-2: #FAF8F4;
+  --border: #E0D8CC;
+  --border-strong: #C8BEAf;
+  --text: #2C1A0E;
+  --text-muted: #7A6A5A;
+  --text-light: #A89880;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+}
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+/* ===== AUTH SCREEN ===== */
+#auth-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--rb-red); gap: 24px; padding: 24px;
+}
+.auth-card {
+  background: white; border-radius: 16px; padding: 40px 48px;
+  text-align: center; max-width: 420px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.auth-logo { font-size: 56px; margin-bottom: 8px; }
+.auth-brand { font-size: 22px; font-weight: 700; color: var(--rb-red); letter-spacing: 2px; margin-bottom: 4px; }
+.auth-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 32px; letter-spacing: 0.5px; }
+.auth-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.auth-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 12px 20px; border-radius: var(--radius);
+  background: var(--rb-red); color: white; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 600; transition: background 0.2s;
+}
+.btn-google:hover { background: var(--rb-red-dark); }
+.btn-google svg { width: 20px; height: 20px; }
+.auth-info { font-size: 11px; color: rgba(255,255,255,0.6); text-align: center; max-width: 320px; }
+
+/* ===== CONFIG SCREEN ===== */
+#config-screen {
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--rb-red); padding: 24px;
+}
+.config-card {
+  background: white; border-radius: 16px; padding: 36px 40px;
+  max-width: 480px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.config-card h2 { font-size: 18px; font-weight: 700; color: var(--rb-red); margin-bottom: 8px; }
+.config-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+.config-steps { list-style: none; margin-bottom: 24px; }
+.config-steps li {
+  display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; align-items: flex-start;
+}
+.config-steps li:last-child { border-bottom: none; }
+.step-num { background: var(--rb-red); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.config-input-group { margin-bottom: 16px; }
+.config-input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.config-input-group input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; color: var(--text); outline: none;
+}
+.config-input-group input:focus { border-color: var(--rb-red); }
+.config-input-group small { font-size: 11px; color: var(--text-light); margin-top: 4px; display: block; }
+.btn-primary { background: var(--rb-red); color: white; border: none; border-radius: var(--radius); padding: 11px 20px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; }
+.btn-primary:hover { background: var(--rb-red-dark); }
+
+/* ===== APP LAYOUT ===== */
+#app { display: none; height: 100vh; overflow: hidden; }
+.layout { display: flex; height: 100vh; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px; background: var(--rb-red); display: flex; flex-direction: column;
+  flex-shrink: 0; overflow: hidden;
+}
+.sidebar-logo { padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+.logo-row { display: flex; align-items: center; gap: 10px; }
+.logo-chess { width: 36px; height: 36px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.logo-name { color: white; }
+.logo-name strong { display: block; font-size: 16px; letter-spacing: 1.5px; }
+.logo-name span { font-size: 10px; color: rgba(255,255,255,0.55); letter-spacing: 0.5px; }
+.sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+.nav-group-label { padding: 10px 16px 4px; font-size: 9px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+  cursor: pointer; color: rgba(255,255,255,0.70); font-size: 13px;
+  border-left: 3px solid transparent; transition: all 0.15s; user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+.nav-item.active { background: rgba(255,255,255,0.15); color: white; border-left-color: white; }
+.nav-icon { font-size: 16px; width: 18px; text-align: center; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.15); }
+.user-row { display: flex; align-items: center; gap: 8px; }
+.user-av { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 12px; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 10px; color: rgba(255,255,255,0.45); }
+.btn-signout { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.4); font-size: 14px; padding: 4px; }
+.btn-signout:hover { color: rgba(255,255,255,0.8); }
+
+/* ===== MAIN ===== */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar {
+  padding: 12px 24px; border-bottom: 1px solid var(--border);
+  background: var(--surface); display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.sync-status { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #4A9E4A; }
+.sync-dot.syncing { background: #B07020; animation: pulse 1s infinite; }
+.sync-dot.error { background: #A32D2D; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: all 0.15s; white-space: nowrap; }
+.btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.btn-accent { background: var(--rb-red); color: white; border-color: var(--rb-red); }
+.btn-accent:hover { background: var(--rb-red-dark); border-color: var(--rb-red-dark); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-green { background: var(--rb-green); color: white; border-color: var(--rb-green); }
+.btn-green:hover { background: var(--rb-green-light); }
+.content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+/* ===== LOADING ===== */
+#loading-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(139,26,26,0.92);
+  align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 16px;
+}
+#loading-overlay p { color: white; font-size: 14px; }
+.spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== TOAST ===== */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9998; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--text); color: white; padding: 10px 16px; border-radius: var(--radius); font-size: 13px; box-shadow: var(--shadow-md); animation: slideUp 0.2s ease; max-width: 320px; }
+.toast.success { background: var(--rb-green); }
+.toast.error { background: #A32D2D; }
+@keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ===== MODAL ===== */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 999; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 12px; padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-light); line-height: 1; padding: 2px 6px; }
+.modal-close:hover { color: var(--text); }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; color: var(--text); background: white; outline: none; font-family: inherit;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--rb-red); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.form-required { color: var(--rb-red); }
+
+/* ===== PAGES ===== */
+.page { display: none; }
+.page.active { display: block; }
+.page-header { margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.page-header-left h1 { font-size: 20px; font-weight: 700; color: var(--text); }
+.page-header-left p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== KPI CARDS ===== */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; border-left: 4px solid var(--border); }
+.kpi-card.red { border-left-color: var(--rb-red); }
+.kpi-card.green { border-left-color: var(--rb-green); }
+.kpi-card.amber { border-left-color: #B07020; }
+.kpi-card.blue { border-left-color: #185FA5; }
+.kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+/* ===== CARDS ===== */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.card-link { font-size: 12px; color: var(--rb-red); cursor: pointer; }
+.card-link:hover { text-decoration: underline; }
+
+/* ===== BADGES ===== */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.badge-pi { background: #E6F1FB; color: #0C447C; }
+.badge-trabalhista { background: #FAEEDA; color: #633806; }
+.badge-social { background: #EAF3DE; color: #27500A; }
+.badge-civil { background: #FBEAF0; color: #72243E; }
+.badge-cultural { background: #EEEDFE; color: #3C3489; }
+.badge-recebido { background: #EAF3DE; color: #27500A; }
+.badge-pendente { background: #FAEEDA; color: #633806; }
+.badge-atrasado { background: #FCEBEB; color: #791F1F; }
+.badge-parcial { background: #E6F1FB; color: #0C447C; }
+
+/* ===== STATUS DOT ===== */
+.sdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; flex-shrink: 0; }
+.sdot-active { background: #4A9E4A; }
+.sdot-pending { background: #B07020; }
+.sdot-urgent { background: #A32D2D; }
+.sdot-done { background: #AAA; }
+.sdot-new { background: #185FA5; }
+
+/* ===== TABLE ===== */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { font-size: 11px; color: var(--text-muted); padding: 0 10px 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.data-table td { font-size: 13px; padding: 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface-2); }
+.td-main { font-weight: 600; }
+.td-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.td-actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+/* ===== TWO COL ===== */
+.two-col { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+
+/* ===== PRAZOS ===== */
+.prazo-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.prazo-item:last-child { border-bottom: none; }
+.prazo-date-box { text-align: center; min-width: 42px; }
+.prazo-day { font-size: 20px; font-weight: 700; line-height: 1; }
+.prazo-month { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+.prazo-day.urgent { color: var(--rb-red); }
+.prazo-info .case { font-size: 13px; font-weight: 600; }
+.prazo-info .tipo { font-size: 11px; color: var(--text-muted); }
+.prazo-info .tipo.urgent { color: var(--rb-red); font-weight: 600; }
+
+/* ===== KANBAN ===== */
+.kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
+.kanban-col { background: var(--surface-2); border-radius: 12px; padding: 12px; }
+.kanban-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.kanban-col-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.kanban-count { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px; font-size: 11px; color: var(--text-muted); }
+.case-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.case-card:last-child { margin-bottom: 0; }
+.case-card:hover { border-color: var(--rb-red); box-shadow: var(--shadow); }
+.case-card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.case-card-type { margin-bottom: 8px; }
+.case-card-footer { display: flex; align-items: center; justify-content: space-between; }
+.case-card-due { font-size: 11px; color: var(--text-muted); }
+.case-card-due.urgent { color: var(--rb-red); font-weight: 600; }
+
+/* ===== AGENDA ===== */
+.agenda-layout { display: grid; grid-template-columns: 240px 1fr; gap: 16px; }
+.mini-cal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cal-nav-btn { background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-muted); padding: 3px 8px; font-size: 14px; }
+.cal-nav-btn:hover { background: var(--surface-2); }
+.cal-month-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.cal-weekday { font-size: 10px; color: var(--text-light); padding: 2px 0 6px; font-weight: 600; }
+.cal-day { font-size: 12px; padding: 5px 2px; border-radius: 5px; cursor: pointer; color: var(--text-muted); line-height: 1.2; }
+.cal-day:hover { background: var(--surface-2); }
+.cal-day.today { background: var(--rb-red); color: white; font-weight: 700; border-radius: 50%; }
+.cal-day.has-event { color: var(--text); font-weight: 700; }
+.cal-day.has-event::after { content:''; display:block; width:4px; height:4px; border-radius:50%; background:var(--rb-red); margin:1px auto 0; }
+.cal-day.today::after { display:none; }
+.cal-day.empty { pointer-events: none; }
+.events-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.event-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.event-item:last-child { border-bottom: none; }
+.event-time { font-size: 11px; color: var(--text-muted); min-width: 48px; padding-top: 1px; }
+.event-bar { width: 3px; border-radius: 2px; background: var(--rb-red); flex-shrink: 0; min-height: 36px; }
+.event-bar.green { background: var(--rb-green); }
+.event-bar.amber { background: #B07020; }
+.event-bar.blue { background: #185FA5; }
+.event-content .ev-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.event-content .ev-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== CLIENTS ===== */
+.client-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.client-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.client-card:hover { border-color: var(--rb-red); }
+.client-av { width: 42px; height: 42px; border-radius: 50%; background: #F0E8E8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--rb-red); flex-shrink: 0; }
+.client-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.client-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.client-type { font-size: 11px; color: var(--text-muted); }
+.client-stats { display: flex; gap: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+.client-stat { font-size: 11px; color: var(--text-light); }
+.client-stat strong { color: var(--text-muted); }
+.client-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+/* ===== HONORÁRIOS ===== */
+.financeiro-kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.pct-bar { height: 5px; border-radius: 3px; background: var(--border); margin-top: 8px; overflow: hidden; }
+.pct-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+/* ===== MODELOS ===== */
+.modelos-section { margin-bottom: 24px; }
+.modelos-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.modelo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.modelo-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.15s; }
+.modelo-card:hover { border-color: var(--rb-red); background: #FFF8F8; }
+.modelo-icon { font-size: 22px; margin-bottom: 6px; }
+.modelo-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.modelo-desc { font-size: 11px; color: var(--text-muted); }
+
+/* ===== EMPTY STATE ===== */
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+.empty-state p { font-size: 13px; }
+
+/* ===== SEARCH / FILTER BAR ===== */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+.filter-bar input { flex: 1; max-width: 280px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; outline: none; }
+.filter-bar input:focus { border-color: var(--rb-red); }
+.filter-bar select { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; color: var(--text); background: white; outline: none; cursor: pointer; }
+.filter-bar select:focus { border-color: var(--rb-red); }
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .kanban { grid-template-columns: repeat(2, 1fr); }
+  .client-grid { grid-template-columns: repeat(2, 1fr); }
+  .modelo-grid { grid-template-columns: repeat(2, 1fr); }
+  .agenda-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .sidebar { width: 56px; }
+  .logo-name, .nav-group-label, .nav-item span, .user-info { display: none; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .kanban { grid-template-columns: 1fr; }
+  .client-grid { grid-template-columns: 1fr; }
+  .modelo-grid { grid-template-columns: 1fr 1fr; }
+  .financeiro-kpi { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">♟</div>
+    <div class="auth-brand">RB</div>
+    <div class="auth-sub">Rafael Batista Advocacia</div>
+    <div class="auth-title">Plataforma de Gestão</div>
+    <div class="auth-desc">Acesse com sua conta Google para sincronizar seus dados com o Google Drive.</div>
+
+    <button class="btn-google" id="btn-signin" onclick="App.signIn()">
+      <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Entrar com Google
+    </button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:12px 0 8px;">
+      <div style="flex:1;height:1px;background:#E0D8CC;"></div>
+      <span style="font-size:11px;color:#A89880;">ou</span>
+      <div style="flex:1;height:1px;background:#E0D8CC;"></div>
+    </div>
+
+    <button class="btn-google" style="background:#4A5E2A;" onclick="App.startDemo()">
+      🔒 Modo demonstração (sem Drive)
+    </button>
+
+    <div id="auth-error" style="display:none;margin-top:12px;padding:8px 12px;background:#FCEBEB;border-radius:6px;font-size:12px;color:#791F1F;text-align:left;"></div>
+  </div>
+  <div class="auth-info">Seus dados ficam apenas no seu Google Drive pessoal. Nenhuma informação é enviada a servidores externos.</div>
+</div>
+
+<!-- config-screen removida — Client ID fica hardcoded no arquivo (linha ~975) -->
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p id="loading-text">Carregando...</p>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast-container"></div>
+
+<!-- ===== MODAIS ===== -->
+
+<!-- Modal: Caso -->
+<div class="modal-overlay" id="modal-caso">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-caso-title">Novo caso</div>
+      <button class="modal-close" onclick="closeModal('modal-caso')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nome do caso <span class="form-required">*</span></label>
+        <input class="form-input" id="caso-nome" placeholder="Ex: Contrato de cessão de direitos">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cliente <span class="form-required">*</span></label>
+        <input class="form-input" id="caso-cliente" placeholder="Nome do cliente">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Área <span class="form-required">*</span></label>
+        <select class="form-select" id="caso-area">
+          <option value="">Selecione</option>
+          <option value="pi">Prop. Intelectual</option>
+          <option value="trabalhista">Trabalhista</option>
+          <option value="social">Direito Social</option>
+          <option value="civil">Cível</option>
+          <option value="cultural">Cultura & Entretenimento</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="caso-status">
+          <option value="consulta">Consulta inicial</option>
+          <option value="analise">Em análise</option>
+          <option value="andamento">Em andamento</option>
+          <option value="encerrado">Encerrado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Número do processo</label>
+        <input class="form-input" id="caso-processo" placeholder="0000000-00.0000.0.00.0000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Próximo prazo</label>
+        <input class="form-input" type="date" id="caso-prazo">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de ação / descrição</label>
+      <input class="form-input" id="caso-desc" placeholder="Ex: Audiência de instrução, registro de marca...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <textarea class="form-textarea" id="caso-obs" placeholder="Notas internas sobre o caso..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-caso')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveCaso()">Salvar caso</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Cliente -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-cliente-title">Novo cliente</div>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nome <span class="form-required">*</span></label>
+        <input class="form-input" id="cli-nome" placeholder="Nome ou razão social">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="cli-tipo">
+          <option value="Pessoa Física">Pessoa Física</option>
+          <option value="Associação">Associação / OSC</option>
+          <option value="Grupo Cultural">Grupo Cultural</option>
+          <option value="Empresa">Empresa</option>
+          <option value="Artista">Artista / Músico</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-input" id="cli-email" type="email" placeholder="email@exemplo.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefone / WhatsApp</label>
+        <input class="form-input" id="cli-tel" placeholder="(19) 99999-9999">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">CPF / CNPJ</label>
+        <input class="form-input" id="cli-doc" placeholder="000.000.000-00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Desde</label>
+        <input class="form-input" type="date" id="cli-desde">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Área de atuação / contexto</label>
+      <input class="form-input" id="cli-contexto" placeholder="Ex: Grupo de capoeira, produtor musical...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <textarea class="form-textarea" id="cli-obs" placeholder="Notas sobre o cliente..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveCliente()">Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Honorário -->
+<div class="modal-overlay" id="modal-honorario">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Lançar honorário</div>
+      <button class="modal-close" onclick="closeModal('modal-honorario')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cliente <span class="form-required">*</span></label>
+        <input class="form-input" id="hon-cliente" placeholder="Nome do cliente">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Serviço <span class="form-required">*</span></label>
+        <input class="form-input" id="hon-servico" placeholder="Ex: Contrato de cessão">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Valor (R$) <span class="form-required">*</span></label>
+        <input class="form-input" id="hon-valor" type="number" placeholder="0,00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Vencimento</label>
+        <input class="form-input" type="date" id="hon-venc">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="hon-status">
+        <option value="pendente">Pendente</option>
+        <option value="recebido">Recebido</option>
+        <option value="atrasado">Atrasado</option>
+        <option value="parcial">Parcialmente recebido</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <textarea class="form-textarea" id="hon-obs" placeholder="Notas sobre o pagamento..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-honorario')">Cancelar</button>
+      <button class="btn btn-accent" onclick="saveHonorario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Prazo / Evento -->
+<div class="modal-overlay" id="modal-prazo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Novo prazo / compromisso</div>
+      <button class="modal-close" onclick="closeModal('modal-prazo')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Título <span class="form-required">*</span></label>
+        <input class="form-input" id="prz-titulo" placeholder="Ex: Audiência de instrução">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cliente / Caso</label>
+        <input class="form-input" id="prz-caso" placeholder="Nome do cliente ou caso">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Data <span class="form-required">*</span></label>
+        <input class="form-input" type="date" id="prz-data">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hora</label>
+        <input class="form-input" type="time" id="prz-hora">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="prz-tipo">
+          <option value="prazo">Prazo processual</option>
+          <option value="audiencia">Audiência</option>
+          <option value="reuniao">Reunião</option>
+          <option value="protocolo">Protocolo / entrega</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Urgência</label>
+        <select class="form-select" id="prz-urgencia">
+          <option value="normal">Normal</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <textarea class="form-textarea" id="prz-obs" placeholder="Detalhes adicionais..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-prazo')">Cancelar</button>
+      <button class="btn btn-accent" onclick="savePrazo()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-row">
+          <div class="logo-chess">♟</div>
+          <div class="logo-name">
+            <strong>RB</strong>
+            <span>Advocacia</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-group-label">Principal</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-icon">📊</span><span>Painel</span>
+        </div>
+        <div class="nav-item" onclick="showPage('casos')">
+          <span class="nav-icon">⚖️</span><span>Casos</span>
+        </div>
+        <div class="nav-item" onclick="showPage('agenda')">
+          <span class="nav-icon">📅</span><span>Agenda & Prazos</span>
+        </div>
+        <div class="nav-group-label">Gestão</div>
+        <div class="nav-item" onclick="showPage('clientes')">
+          <span class="nav-icon">👥</span><span>Clientes</span>
+        </div>
+        <div class="nav-item" onclick="showPage('honorarios')">
+          <span class="nav-icon">💰</span><span>Honorários</span>
+        </div>
+        <div class="nav-group-label">Ferramentas</div>
+        <div class="nav-item" onclick="showPage('modelos')">
+          <span class="nav-icon">📄</span><span>Modelos de Peças</span>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <div class="user-av" id="user-av">RB</div>
+          <div class="user-info">
+            <div class="user-name" id="user-name-display">Rafael Batista</div>
+            <div class="user-role">Advogado</div>
+          </div>
+          <button class="btn-signout" onclick="App.signOut()" title="Sair">⇥</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-title" id="page-title">Painel Geral</div>
+          <div class="sync-status" id="sync-status">
+            <div class="sync-dot" id="sync-dot"></div>
+            <span id="sync-text">Sincronizado</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn" onclick="DriveDB.syncAll()">🔄 Sincronizar</button>
+          <button class="btn btn-accent" id="btn-novo-principal" onclick="openModalPrincipal()">+ Novo caso</button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- PAINEL -->
+        <div class="page active" id="page-dashboard">
+          <div class="kpi-grid">
+            <div class="kpi-card red"><div class="kpi-label">Casos ativos</div><div class="kpi-value" id="kpi-casos">–</div><div class="kpi-sub" id="kpi-casos-sub">carregando...</div></div>
+            <div class="kpi-card amber"><div class="kpi-label">Prazos esta semana</div><div class="kpi-value" id="kpi-prazos">–</div><div class="kpi-sub" id="kpi-prazos-sub">carregando...</div></div>
+            <div class="kpi-card green"><div class="kpi-label">Honorários (mês)</div><div class="kpi-value" id="kpi-honorarios">–</div><div class="kpi-sub" id="kpi-hon-sub">carregando...</div></div>
+            <div class="kpi-card blue"><div class="kpi-label">Clientes ativos</div><div class="kpi-value" id="kpi-clientes">–</div><div class="kpi-sub" id="kpi-cli-sub">carregando...</div></div>
+          </div>
+          <div class="two-col">
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Casos recentes</div>
+                  <span class="card-link" onclick="showPage('casos')">Ver todos →</span>
+                </div>
+                <div id="dashboard-casos-list"></div>
+              </div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">Próximos prazos</div></div>
+                <div id="dashboard-prazos-list"></div>
+              </div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">Honorários do mês</div></div>
+                <div id="dashboard-financeiro"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASOS -->
+        <div class="page" id="page-casos">
+          <div class="page-header">
+            <div class="page-header-left">
+              <h1>Casos</h1>
+              <p>Gerenciamento de todos os processos e demandas</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn" onclick="toggleView()">🔲 Alternar visualização</button>
+              <button class="btn btn-accent" onclick="openModal('modal-caso')">+ Novo caso</button>
+            </div>
+          </div>
+          <div class="filter-bar">
+            <input type="text" id="search-casos" placeholder="Buscar caso, cliente..." oninput="renderCasos()">
+            <select id="filter-area" onchange="renderCasos()">
+              <option value="">Todas as áreas</option>
+              <option value="pi">Prop. Intelectual</option>
+              <option value="trabalhista">Trabalhista</option>
+              <option value="social">Direito Social</option>
+              <option value="civil">Cível</option>
+              <option value="cultural">Cultura & Entretenimento</option>
+            </select>
+            <select id="filter-status" onchange="renderCasos()">
+              <option value="">Todos os status</option>
+              <option value="consulta">Consulta inicial</option>
+              <option value="analise">Em análise</option>
+              <option value="andamento">Em andamento</option>
+              <option value="encerrado">Encerrado</option>
+            </select>
+          </div>
+          <div id="casos-view-kanban">
+            <div class="kanban" id="kanban-board"></div>
+          </div>
+          <div id="casos-view-table" style="display:none;">
+            <div class="card">
+              <table class="data-table" id="casos-table"></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGENDA -->
+        <div class="page" id="page-agenda">
+          <div class="page-header">
+            <div class="page-header-left">
+              <h1>Agenda & Prazos</h1>
+              <p>Controle de audiências, prazos processuais e compromissos</p>
+            </div>
+            <button class="btn btn-accent" onclick="openModal('modal-prazo')">+ Novo prazo</button>
+          </div>
+          <div class="agenda-layout">
+            <div class="mini-cal">
+              <div class="cal-nav">
+                <button class="cal-nav-btn" onclick="Agenda.prevMonth()">‹</button>
+                <div class="cal-month-label" id="cal-month-label"></div>
+                <button class="cal-nav-btn" onclick="Agenda.nextMonth()">›</button>
+              </div>
+              <div class="cal-grid" id="cal-grid"></div>
+            </div>
+            <div class="events-panel">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div class="card-title" id="events-panel-title">Todos os compromissos</div>
+              </div>
+              <div id="events-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLIENTES -->
+        <div class="page" id="page-clientes">
+          <div class="page-header">
+            <div class="page-header-left">
+              <h1>Clientes</h1>
+              <p>Cadastro e histórico de clientes</p>
+            </div>
+            <button class="btn btn-accent" onclick="openModal('modal-cliente')">+ Novo cliente</button>
+          </div>
+          <div class="filter-bar">
+            <input type="text" id="search-clientes" placeholder="Buscar cliente..." oninput="renderClientes()">
+            <select id="filter-cli-tipo" onchange="renderClientes()">
+              <option value="">Todos os tipos</option>
+              <option value="Pessoa Física">Pessoa Física</option>
+              <option value="Associação">Associação / OSC</option>
+              <option value="Grupo Cultural">Grupo Cultural</option>
+              <option value="Empresa">Empresa</option>
+              <option value="Artista">Artista / Músico</option>
+            </select>
+          </div>
+          <div class="client-grid" id="clientes-grid"></div>
+        </div>
+
+        <!-- HONORÁRIOS -->
+        <div class="page" id="page-honorarios">
+          <div class="page-header">
+            <div class="page-header-left">
+              <h1>Honorários</h1>
+              <p>Controle financeiro de honorários e pagamentos</p>
+            </div>
+            <button class="btn btn-accent" onclick="openModal('modal-honorario')">+ Lançar honorário</button>
+          </div>
+          <div class="financeiro-kpi" id="fin-kpi"></div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Lançamentos</div>
+              <div style="display:flex;gap:8px;">
+                <select id="filter-hon-status" onchange="renderHonorarios()" style="padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;">
+                  <option value="">Todos</option>
+                  <option value="pendente">Pendente</option>
+                  <option value="recebido">Recebido</option>
+                  <option value="atrasado">Atrasado</option>
+                </select>
+              </div>
+            </div>
+            <table class="data-table" id="honorarios-table"></table>
+          </div>
+        </div>
+
+        <!-- MODELOS -->
+        <div class="page" id="page-modelos">
+          <div class="page-header">
+            <div class="page-header-left">
+              <h1>Modelos de Peças</h1>
+              <p>Biblioteca de documentos e contratos para geração rápida</p>
+            </div>
+          </div>
+
+          <div class="modelos-section">
+            <div class="modelos-section-title">⚖️ Direitos Autorais & Propriedade Intelectual</div>
+            <div class="modelo-grid">
+              <div class="modelo-card" onclick="gerarModelo('cessao-direitos')">
+                <div class="modelo-icon">🎵</div>
+                <div class="modelo-name">Cessão de direitos autorais</div>
+                <div class="modelo-desc">Música, artes visuais e obras literárias</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('licenca-marca')">
+                <div class="modelo-icon">™️</div>
+                <div class="modelo-name">Licenciamento de marca</div>
+                <div class="modelo-desc">Para artistas e grupos culturais</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('notificacao-violacao')">
+                <div class="modelo-icon">⚠️</div>
+                <div class="modelo-name">Notificação por violação de PI</div>
+                <div class="modelo-desc">Infração de direitos autorais e marcas</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('contrato-producao')">
+                <div class="modelo-icon">🎬</div>
+                <div class="modelo-name">Contrato de produção musical</div>
+                <div class="modelo-desc">Estúdio, produtor e artista</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('acordo-coautoria')">
+                <div class="modelo-icon">🤝</div>
+                <div class="modelo-name">Acordo de coautoria</div>
+                <div class="modelo-desc">Obras criadas em colaboração</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('registro-obra-inpi')">
+                <div class="modelo-icon">📋</div>
+                <div class="modelo-name">Orientações para registro INPI</div>
+                <div class="modelo-desc">Passo a passo de registro de obras</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modelos-section">
+            <div class="modelos-section-title">🌱 Direito Social, Cultura & Associações</div>
+            <div class="modelo-grid">
+              <div class="modelo-card" onclick="gerarModelo('estatuto-osc')">
+                <div class="modelo-icon">🏛️</div>
+                <div class="modelo-name">Estatuto social</div>
+                <div class="modelo-desc">Associações e OSCs culturais</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('prestacao-contas')">
+                <div class="modelo-icon">📊</div>
+                <div class="modelo-name">Relatório de prestação de contas</div>
+                <div class="modelo-desc">Para editais e leis de incentivo</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('projeto-cultural-edital')">
+                <div class="modelo-icon">📝</div>
+                <div class="modelo-name">Projeto cultural para edital</div>
+                <div class="modelo-desc">PROAC, Lei Rouanet e similares</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('convenio-parceria')">
+                <div class="modelo-icon">📜</div>
+                <div class="modelo-name">Convênio / termo de parceria</div>
+                <div class="modelo-desc">OSCs com entes públicos e privados</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('ata-assembleia')">
+                <div class="modelo-icon">📌</div>
+                <div class="modelo-name">Ata de assembleia</div>
+                <div class="modelo-desc">Aprovação de contas e eleições</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('alvara-cultural')">
+                <div class="modelo-icon">🗂️</div>
+                <div class="modelo-name">Requerimento de alvará cultural</div>
+                <div class="modelo-desc">Espaços culturais e eventos</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modelos-section">
+            <div class="modelos-section-title">💼 Trabalhista & Contratual</div>
+            <div class="modelo-grid">
+              <div class="modelo-card" onclick="gerarModelo('contrato-show')">
+                <div class="modelo-icon">🎤</div>
+                <div class="modelo-name">Contrato de show / cachê</div>
+                <div class="modelo-desc">Músicos, bandas e artistas cênicos</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('acordo-trabalhista')">
+                <div class="modelo-icon">✍️</div>
+                <div class="modelo-name">Acordo extrajudicial trabalhista</div>
+                <div class="modelo-desc">Rescisão e quitação de vínculos</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('contrato-honorarios')">
+                <div class="modelo-icon">💼</div>
+                <div class="modelo-name">Contrato de honorários</div>
+                <div class="modelo-desc">Com e sem cláusula de êxito</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('consultoria-juridica')">
+                <div class="modelo-icon">🧾</div>
+                <div class="modelo-name">Contrato de assessoria jurídica</div>
+                <div class="modelo-desc">Assessoria mensal para entidades</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('procuracao')">
+                <div class="modelo-icon">📋</div>
+                <div class="modelo-name">Procuração ad judicia</div>
+                <div class="modelo-desc">Poderes gerais e específicos</div>
+              </div>
+              <div class="modelo-card" onclick="gerarModelo('notificacao-extrajudicial')">
+                <div class="modelo-icon">📮</div>
+                <div class="modelo-name">Notificação extrajudicial</div>
+                <div class="modelo-desc">Cobrança de créditos e acordos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- Google Identity Services — sem async/defer para garantir carregamento síncrono -->
+<script src="https://accounts.google.com/gsi/client"></script>
+
+<script>
+// ================================================================
+// CONFIGURAÇÃO — edite após criar as credenciais no Google Cloud
+// ================================================================
+const CONFIG = {
+  // ================================================================
+  // ⚙️  EDITE AQUI antes de subir pro GitHub Pages
+  //     Google Cloud Console → Credenciais → OAuth 2.0 → copie o Client ID
+  // ================================================================
+  CLIENT_ID: '513050277099-3u2ul6gne17dionkd5u1lvmv10lduqhm.apps.googleusercontent.com',
+  // ================================================================
+  SCOPES: 'https://www.googleapis.com/auth/drive.file',
+  FOLDER_NAME: 'RB-Advocacia-Dados',
+  FILES: {
+    casos: 'casos.json',
+    clientes: 'clientes.json',
+    honorarios: 'honorarios.json',
+    prazos: 'prazos.json'
+  }
+};
+
+// ================================================================
+// STATE
+// ================================================================
+const State = {
+  accessToken: null,
+  folderId: null,
+  fileIds: {},
+  data: {
+    casos: [],
+    clientes: [],
+    honorarios: [],
+    prazos: []
+  },
+  casosView: 'kanban',
+  currentPage: 'dashboard',
+  editingId: null
+};
+
+// ================================================================
+// UTILS
+// ================================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmt(dateStr) {
+  if (!dateStr) return '–';
+  const [y,m,d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+function fmtMoney(v) { return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function initials(name) { return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+function isUrgent(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr + 'T00:00:00');
+  const n = new Date(); n.setHours(0,0,0,0);
+  return (d - n) / 86400000 <= 3;
+}
+function isThisWeek(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr + 'T00:00:00');
+  const n = new Date(); n.setHours(0,0,0,0);
+  return (d - n) / 86400000 <= 7 && d >= n;
+}
+function isThisMonth(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr + 'T00:00:00');
+  const n = new Date();
+  return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+}
+const AREA_LABELS = { pi:'Prop. Intelectual', trabalhista:'Trabalhista', social:'Direito Social', civil:'Cível', cultural:'Cultura & Entretenimento' };
+const AREA_CLASSES = { pi:'badge-pi', trabalhista:'badge-trabalhista', social:'badge-social', civil:'badge-civil', cultural:'badge-cultural' };
+const STATUS_LABELS = { consulta:'Consulta inicial', analise:'Em análise', andamento:'Em andamento', encerrado:'Encerrado' };
+const STATUS_DOTS = { consulta:'sdot-new', analise:'sdot-pending', andamento:'sdot-active', encerrado:'sdot-done' };
+
+function badgeArea(area) { return `<span class="badge ${AREA_CLASSES[area]||'badge-civil'}">${AREA_LABELS[area]||area}</span>`; }
+function statusDot(status) { return `<span class="sdot ${STATUS_DOTS[status]||'sdot-done'}"></span>${STATUS_LABELS[status]||status}`; }
+
+// ================================================================
+// TOAST / LOADING
+// ================================================================
+function toast(msg, type='') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+function loading(show, text='Carregando...') {
+  const el = document.getElementById('loading-overlay');
+  el.style.display = show ? 'flex' : 'none';
+  document.getElementById('loading-text').textContent = text;
+}
+function setSyncStatus(state) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  dot.className = 'sync-dot' + (state==='syncing' ? ' syncing' : state==='error' ? ' error' : '');
+  txt.textContent = state==='syncing' ? 'Salvando...' : state==='error' ? 'Erro de conexão' : 'Sincronizado';
+}
+
+// ================================================================
+// AUTH
+// ================================================================
+const App = {
+  showAuthError(msg) {
+    const el = document.getElementById('auth-error');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  },
+
+  signIn() {
+    if (CONFIG.CLIENT_ID === 'SEU_CLIENT_ID_AQUI.apps.googleusercontent.com') {
+      App.showAuthError('Configure o Client ID no arquivo HTML antes de publicar.');
+      return;
+    }
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+      App.showAuthError('Biblioteca do Google ainda carregando. Aguarde 2 segundos e tente novamente.');
+      return;
+    }
+    try {
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CONFIG.CLIENT_ID,
+        scope: CONFIG.SCOPES,
+        callback: async (resp) => {
+          if (resp.error) {
+            App.showAuthError('Erro no login: ' + resp.error + '. Verifique se seu e-mail está na lista de usuários de teste no Google Cloud Console.');
+            return;
+          }
+          State.accessToken = resp.access_token;
+          loading(true, 'Conectando ao Google Drive...');
+          try {
+            await DriveDB.init();
+            App.showApp();
+          } catch(e) {
+            loading(false);
+            App.showAuthError('Erro ao acessar o Drive: ' + e.message);
+          }
+          loading(false);
+        }
+      });
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    } catch(e) {
+      App.showAuthError('Erro ao iniciar autenticação: ' + e.message);
+    }
+  },
+
+  startDemo() {
+    initDemo();
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderAll();
+    Agenda.render();
+    setSyncStatus('ok');
+    document.getElementById('sync-text').textContent = 'Modo demo';
+    toast('Modo demonstração ativado. Dados não são salvos.', 'success');
+  },
+
+  showApp() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderAll();
+    Agenda.render();
+  },
+
+  signOut() {
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.oauth2.revoke(State.accessToken, () => {});
+    }
+    State.accessToken = null;
+    State.data = { casos:[], clientes:[], honorarios:[], prazos:[] };
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    toast('Sessão encerrada');
+  }
+};
+
+// ================================================================
+// GOOGLE DRIVE API
+// ================================================================
+const DriveDB = {
+  async req(method, url, body) {
+    const r = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': 'Bearer ' + State.accessToken,
+        'Content-Type': 'application/json'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) throw new Error('Drive API error: ' + r.status);
+    return r.json();
+  },
+
+  async init() {
+    // Busca ou cria a pasta
+    let res = await this.req('GET',
+      `https://www.googleapis.com/drive/v3/files?q=name='${CONFIG.FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false&fields=files(id,name)`
+    );
+    if (res.files.length > 0) {
+      State.folderId = res.files[0].id;
+    } else {
+      const f = await this.req('POST', 'https://www.googleapis.com/drive/v3/files', {
+        name: CONFIG.FOLDER_NAME,
+        mimeType: 'application/vnd.google-apps.folder'
+      });
+      State.folderId = f.id;
+    }
+    // Carrega arquivos
+    await this.loadAll();
+  },
+
+  async loadAll() {
+    for (const [key, filename] of Object.entries(CONFIG.FILES)) {
+      try {
+        let res = await this.req('GET',
+          `https://www.googleapis.com/drive/v3/files?q=name='${filename}' and '${State.folderId}' in parents and trashed=false&fields=files(id,name)`
+        );
+        if (res.files.length > 0) {
+          State.fileIds[key] = res.files[0].id;
+          const content = await fetch(
+            `https://www.googleapis.com/drive/v3/files/${res.files[0].id}?alt=media`,
+            { headers: { 'Authorization': 'Bearer ' + State.accessToken } }
+          );
+          State.data[key] = await content.json();
+        } else {
+          State.data[key] = [];
+        }
+      } catch(e) { State.data[key] = []; }
+    }
+  },
+
+  async save(key) {
+    setSyncStatus('syncing');
+    const content = JSON.stringify(State.data[key], null, 2);
+    const filename = CONFIG.FILES[key];
+    try {
+      if (State.fileIds[key]) {
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${State.fileIds[key]}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + State.accessToken, 'Content-Type': 'application/json' },
+          body: content
+        });
+      } else {
+        const meta = await this.req('POST', 'https://www.googleapis.com/drive/v3/files', {
+          name: filename, parents: [State.folderId]
+        });
+        State.fileIds[key] = meta.id;
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${meta.id}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + State.accessToken, 'Content-Type': 'application/json' },
+          body: content
+        });
+      }
+      setSyncStatus('ok');
+    } catch(e) {
+      setSyncStatus('error');
+      toast('Erro ao salvar no Drive', 'error');
+      throw e;
+    }
+  },
+
+  async syncAll() {
+    loading(true, 'Sincronizando com o Drive...');
+    try {
+      await this.loadAll();
+      renderAll();
+      toast('Dados atualizados com sucesso!', 'success');
+    } catch(e) { toast('Erro ao sincronizar', 'error'); }
+    loading(false);
+  }
+};
+
+// ================================================================
+// NAVEGAÇÃO
+// ================================================================
+const PAGE_TITLES = {
+  dashboard: 'Painel Geral',
+  casos: 'Casos',
+  agenda: 'Agenda & Prazos',
+  clientes: 'Clientes',
+  honorarios: 'Honorários',
+  modelos: 'Modelos de Peças'
+};
+const BTN_LABELS = {
+  dashboard: '+ Novo caso',
+  casos: '+ Novo caso',
+  agenda: '+ Novo prazo',
+  clientes: '+ Novo cliente',
+  honorarios: '+ Lançar honorário',
+  modelos: null
+};
+const BTN_ACTIONS = {
+  dashboard: "openModal('modal-caso')",
+  casos: "openModal('modal-caso')",
+  agenda: "openModal('modal-prazo')",
+  clientes: "openModal('modal-cliente')",
+  honorarios: "openModal('modal-honorario')",
+  modelos: null
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') === `showPage('${id}')`) n.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
+  State.currentPage = id;
+  const btn = document.getElementById('btn-novo-principal');
+  if (BTN_LABELS[id]) {
+    btn.style.display = 'flex';
+    btn.textContent = BTN_LABELS[id];
+    btn.setAttribute('onclick', BTN_ACTIONS[id]);
+  } else {
+    btn.style.display = 'none';
+  }
+  // Render page-specific content
+  if (id==='dashboard') renderDashboard();
+  if (id==='casos') renderCasos();
+  if (id==='agenda') { Agenda.render(); }
+  if (id==='clientes') renderClientes();
+  if (id==='honorarios') renderHonorarios();
+}
+
+function openModalPrincipal() {
+  const actions = { dashboard: 'modal-caso', casos: 'modal-caso', agenda: 'modal-prazo', clientes: 'modal-cliente', honorarios: 'modal-honorario' };
+  openModal(actions[State.currentPage] || 'modal-caso');
+}
+
+// ================================================================
+// MODAIS
+// ================================================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  State.editingId = null;
+  clearModalForms();
+}
+function clearModalForms() {
+  document.querySelectorAll('.modal input, .modal select, .modal textarea').forEach(el => {
+    if (el.type === 'select-one') el.selectedIndex = 0;
+    else el.value = '';
+  });
+}
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+
+// ================================================================
+// CASOS
+// ================================================================
+function saveCaso() {
+  const nome = document.getElementById('caso-nome').value.trim();
+  const cliente = document.getElementById('caso-cliente').value.trim();
+  const area = document.getElementById('caso-area').value;
+  if (!nome || !cliente || !area) { toast('Preencha nome, cliente e área', 'error'); return; }
+  const obj = {
+    id: State.editingId || uid(),
+    nome, cliente, area,
+    status: document.getElementById('caso-status').value,
+    processo: document.getElementById('caso-processo').value.trim(),
+    prazo: document.getElementById('caso-prazo').value,
+    desc: document.getElementById('caso-desc').value.trim(),
+    obs: document.getElementById('caso-obs').value.trim(),
+    criado: State.editingId ? undefined : today()
+  };
+  if (State.editingId) {
+    const idx = State.data.casos.findIndex(c => c.id === State.editingId);
+    if (idx >= 0) State.data.casos[idx] = { ...State.data.casos[idx], ...obj };
+  } else {
+    obj.criado = today();
+    State.data.casos.unshift(obj);
+  }
+  DriveDB.save('casos');
+  closeModal('modal-caso');
+  renderAll();
+  toast('Caso salvo com sucesso!', 'success');
+}
+
+function deleteCaso(id) {
+  if (!confirm('Excluir este caso?')) return;
+  State.data.casos = State.data.casos.filter(c => c.id !== id);
+  DriveDB.save('casos');
+  renderAll();
+  toast('Caso removido');
+}
+
+function editCaso(id) {
+  const c = State.data.casos.find(x => x.id === id);
+  if (!c) return;
+  State.editingId = id;
+  document.getElementById('caso-nome').value = c.nome || '';
+  document.getElementById('caso-cliente').value = c.cliente || '';
+  document.getElementById('caso-area').value = c.area || '';
+  document.getElementById('caso-status').value = c.status || 'consulta';
+  document.getElementById('caso-processo').value = c.processo || '';
+  document.getElementById('caso-prazo').value = c.prazo || '';
+  document.getElementById('caso-desc').value = c.desc || '';
+  document.getElementById('caso-obs').value = c.obs || '';
+  document.getElementById('modal-caso-title').textContent = 'Editar caso';
+  openModal('modal-caso');
+}
+
+function toggleView() {
+  State.casosView = State.casosView === 'kanban' ? 'table' : 'kanban';
+  renderCasos();
+}
+
+function renderCasos() {
+  const search = (document.getElementById('search-casos')?.value || '').toLowerCase();
+  const filterArea = document.getElementById('filter-area')?.value || '';
+  const filterStatus = document.getElementById('filter-status')?.value || '';
+  let casos = State.data.casos.filter(c => {
+    const matchSearch = !search || c.nome.toLowerCase().includes(search) || c.cliente.toLowerCase().includes(search);
+    const matchArea = !filterArea || c.area === filterArea;
+    const matchStatus = !filterStatus || c.status === filterStatus;
+    return matchSearch && matchArea && matchStatus;
+  });
+
+  document.getElementById('casos-view-kanban').style.display = State.casosView === 'kanban' ? 'block' : 'none';
+  document.getElementById('casos-view-table').style.display = State.casosView === 'table' ? 'block' : 'none';
+
+  if (State.casosView === 'kanban') {
+    const cols = { consulta:[], analise:[], andamento:[], encerrado:[] };
+    casos.forEach(c => { if (cols[c.status]) cols[c.status].push(c); else cols.andamento.push(c); });
+    const board = document.getElementById('kanban-board');
+    board.innerHTML = Object.entries(cols).map(([status, items]) => `
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <div class="kanban-col-title">${STATUS_LABELS[status]}</div>
+          <div class="kanban-count">${items.length}</div>
+        </div>
+        ${items.length === 0 ? '<div style="font-size:11px;color:var(--text-light);text-align:center;padding:12px 0;">Nenhum caso</div>' : ''}
+        ${items.map(c => `
+          <div class="case-card" onclick="editCaso('${c.id}')">
+            <div class="case-card-name">${c.nome}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">${c.cliente}</div>
+            <div class="case-card-type">${badgeArea(c.area)}</div>
+            <div class="case-card-footer">
+              <span class="case-card-due ${isUrgent(c.prazo)?'urgent':''}">${c.prazo ? (isUrgent(c.prazo)?'⚠ ':'')+'Prazo: '+fmt(c.prazo) : 'Sem prazo'}</span>
+              <button class="btn btn-sm" onclick="event.stopPropagation();deleteCaso('${c.id}')" style="padding:2px 7px;font-size:11px;">🗑</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  } else {
+    const table = document.getElementById('casos-table');
+    if (casos.length === 0) { table.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Nenhum caso encontrado</td></tr>'; return; }
+    table.innerHTML = `
+      <thead><tr>
+        <th>Caso</th><th>Cliente</th><th>Área</th><th>Status</th><th>Próximo prazo</th><th></th>
+      </tr></thead>
+      <tbody>${casos.map(c => `
+        <tr>
+          <td><div class="td-main">${c.nome}</div>${c.processo?`<div class="td-sub">${c.processo}</div>`:''}</td>
+          <td>${c.cliente}</td>
+          <td>${badgeArea(c.area)}</td>
+          <td>${statusDot(c.status)}</td>
+          <td style="${isUrgent(c.prazo)?'color:var(--rb-red);font-weight:600':''}">${fmt(c.prazo)}</td>
+          <td><div class="td-actions">
+            <button class="btn btn-sm" onclick="editCaso('${c.id}')">✏️</button>
+            <button class="btn btn-sm" onclick="deleteCaso('${c.id}')">🗑</button>
+          </div></td>
+        </tr>
+      `).join('')}</tbody>
+    `;
+  }
+}
+
+// ================================================================
+// CLIENTES
+// ================================================================
+function saveCliente() {
+  const nome = document.getElementById('cli-nome').value.trim();
+  if (!nome) { toast('Informe o nome do cliente', 'error'); return; }
+  const obj = {
+    id: State.editingId || uid(),
+    nome,
+    tipo: document.getElementById('cli-tipo').value,
+    email: document.getElementById('cli-email').value.trim(),
+    tel: document.getElementById('cli-tel').value.trim(),
+    doc: document.getElementById('cli-doc').value.trim(),
+    desde: document.getElementById('cli-desde').value,
+    contexto: document.getElementById('cli-contexto').value.trim(),
+    obs: document.getElementById('cli-obs').value.trim()
+  };
+  if (State.editingId) {
+    const idx = State.data.clientes.findIndex(c => c.id === State.editingId);
+    if (idx >= 0) State.data.clientes[idx] = obj;
+  } else {
+    State.data.clientes.unshift(obj);
+  }
+  DriveDB.save('clientes');
+  closeModal('modal-cliente');
+  renderClientes();
+  toast('Cliente salvo!', 'success');
+}
+
+function deleteCliente(id) {
+  if (!confirm('Excluir este cliente?')) return;
+  State.data.clientes = State.data.clientes.filter(c => c.id !== id);
+  DriveDB.save('clientes');
+  renderClientes();
+}
+
+function editCliente(id) {
+  const c = State.data.clientes.find(x => x.id === id);
+  if (!c) return;
+  State.editingId = id;
+  document.getElementById('cli-nome').value = c.nome || '';
+  document.getElementById('cli-tipo').value = c.tipo || 'Pessoa Física';
+  document.getElementById('cli-email').value = c.email || '';
+  document.getElementById('cli-tel').value = c.tel || '';
+  document.getElementById('cli-doc').value = c.doc || '';
+  document.getElementById('cli-desde').value = c.desde || '';
+  document.getElementById('cli-contexto').value = c.contexto || '';
+  document.getElementById('cli-obs').value = c.obs || '';
+  document.getElementById('modal-cliente-title').textContent = 'Editar cliente';
+  openModal('modal-cliente');
+}
+
+function renderClientes() {
+  const search = (document.getElementById('search-clientes')?.value || '').toLowerCase();
+  const filterTipo = document.getElementById('filter-cli-tipo')?.value || '';
+  const grid = document.getElementById('clientes-grid');
+  let clientes = State.data.clientes.filter(c =>
+    (!search || c.nome.toLowerCase().includes(search) || (c.email||'').toLowerCase().includes(search)) &&
+    (!filterTipo || c.tipo === filterTipo)
+  );
+  if (clientes.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><h3>Nenhum cliente cadastrado</h3><p>Adicione seu primeiro cliente clicando em "+ Novo cliente".</p></div>';
+    return;
+  }
+  grid.innerHTML = clientes.map(c => {
+    const casosCount = State.data.casos.filter(x => x.cliente.toLowerCase().includes(c.nome.toLowerCase())).length;
+    return `
+    <div class="client-card">
+      <div class="client-top">
+        <div class="client-av">${initials(c.nome)}</div>
+        <div>
+          <div class="client-name">${c.nome}</div>
+          <div class="client-type">${c.tipo}${c.contexto?' – '+c.contexto:''}</div>
+        </div>
+      </div>
+      <div class="client-stats">
+        <div class="client-stat"><strong>${casosCount}</strong> caso${casosCount!==1?'s':''}</div>
+        ${c.desde?`<div class="client-stat">desde <strong>${fmt(c.desde)}</strong></div>`:''}
+      </div>
+      ${c.email||c.tel ? `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">${c.email?'✉ '+c.email+'<br>':''}${c.tel?'📱 '+c.tel:''}</div>` : ''}
+      <div class="client-actions">
+        <button class="btn btn-sm" onclick="editCliente('${c.id}')">✏️ Editar</button>
+        <button class="btn btn-sm" onclick="deleteCliente('${c.id}')">🗑 Remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// HONORÁRIOS
+// ================================================================
+function saveHonorario() {
+  const cliente = document.getElementById('hon-cliente').value.trim();
+  const servico = document.getElementById('hon-servico').value.trim();
+  const valor = parseFloat(document.getElementById('hon-valor').value);
+  if (!cliente || !servico || isNaN(valor)) { toast('Preencha cliente, serviço e valor', 'error'); return; }
+  const obj = {
+    id: uid(), cliente, servico, valor,
+    venc: document.getElementById('hon-venc').value,
+    status: document.getElementById('hon-status').value,
+    obs: document.getElementById('hon-obs').value.trim(),
+    criado: today()
+  };
+  State.data.honorarios.unshift(obj);
+  DriveDB.save('honorarios');
+  closeModal('modal-honorario');
+  renderHonorarios();
+  toast('Honorário lançado!', 'success');
+}
+
+function deleteHonorario(id) {
+  if (!confirm('Remover este lançamento?')) return;
+  State.data.honorarios = State.data.honorarios.filter(h => h.id !== id);
+  DriveDB.save('honorarios');
+  renderHonorarios();
+}
+
+function updateHonStatus(id, status) {
+  const h = State.data.honorarios.find(x => x.id === id);
+  if (h) { h.status = status; DriveDB.save('honorarios'); renderHonorarios(); toast('Status atualizado', 'success'); }
+}
+
+function renderHonorarios() {
+  const filterStatus = document.getElementById('filter-hon-status')?.value || '';
+  let items = State.data.honorarios.filter(h => !filterStatus || h.status === filterStatus);
+
+  // KPIs
+  const total = State.data.honorarios.filter(h => isThisMonth(h.venc)||isThisMonth(h.criado));
+  const recebido = total.filter(h => h.status==='recebido').reduce((s,h) => s+Number(h.valor||0), 0);
+  const pendente = total.filter(h => h.status==='pendente'||h.status==='parcial').reduce((s,h) => s+Number(h.valor||0), 0);
+  const atrasado = State.data.honorarios.filter(h => h.status==='atrasado').reduce((s,h) => s+Number(h.valor||0), 0);
+  const totalVal = recebido + pendente;
+  const pct = totalVal > 0 ? Math.round(recebido / totalVal * 100) : 0;
+
+  document.getElementById('fin-kpi').innerHTML = `
+    <div class="kpi-card green">
+      <div class="kpi-label">Recebido (mês)</div>
+      <div class="kpi-value">${fmtMoney(recebido)}</div>
+      <div class="pct-bar"><div class="pct-fill" style="width:${pct}%;background:var(--rb-green);"></div></div>
+      <div class="kpi-sub">${pct}% da meta</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">A receber</div>
+      <div class="kpi-value">${fmtMoney(pendente)}</div>
+      <div class="kpi-sub">${State.data.honorarios.filter(h=>h.status==='pendente').length} cobranças pendentes</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Atrasado</div>
+      <div class="kpi-value">${fmtMoney(atrasado)}</div>
+      <div class="kpi-sub">${State.data.honorarios.filter(h=>h.status==='atrasado').length} lançamentos</div>
+    </div>
+  `;
+
+  const STATUS_HON = { recebido:'badge-recebido', pendente:'badge-pendente', atrasado:'badge-atrasado', parcial:'badge-parcial' };
+  const STATUS_HON_LABELS = { recebido:'Recebido', pendente:'Pendente', atrasado:'Atrasado', parcial:'Parcial' };
+  const table = document.getElementById('honorarios-table');
+  if (items.length === 0) {
+    table.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Nenhum lançamento encontrado</td></tr>';
+    return;
+  }
+  table.innerHTML = `
+    <thead><tr><th>Cliente</th><th>Serviço</th><th>Valor</th><th>Vencimento</th><th>Status</th><th></th></tr></thead>
+    <tbody>${items.map(h => `
+      <tr>
+        <td>${h.cliente}</td>
+        <td>${h.servico}</td>
+        <td style="font-weight:600;">${fmtMoney(h.valor)}</td>
+        <td style="${h.status==='atrasado'?'color:var(--rb-red);font-weight:600;':''}">${fmt(h.venc)}</td>
+        <td>
+          <select class="badge ${STATUS_HON[h.status]||'badge-pendente'}" style="border:none;cursor:pointer;font-weight:600;padding:3px 8px;border-radius:4px;font-size:11px;" onchange="updateHonStatus('${h.id}',this.value)">
+            <option value="pendente" ${h.status==='pendente'?'selected':''}>Pendente</option>
+            <option value="recebido" ${h.status==='recebido'?'selected':''}>Recebido</option>
+            <option value="atrasado" ${h.status==='atrasado'?'selected':''}>Atrasado</option>
+            <option value="parcial" ${h.status==='parcial'?'selected':''}>Parcial</option>
+          </select>
+        </td>
+        <td><button class="btn btn-sm" onclick="deleteHonorario('${h.id}')">🗑</button></td>
+      </tr>
+    `).join('')}</tbody>
+  `;
+}
+
+// ================================================================
+// PRAZOS / AGENDA
+// ================================================================
+function savePrazo() {
+  const titulo = document.getElementById('prz-titulo').value.trim();
+  const data = document.getElementById('prz-data').value;
+  if (!titulo || !data) { toast('Informe título e data', 'error'); return; }
+  const obj = {
+    id: uid(), titulo, data,
+    caso: document.getElementById('prz-caso').value.trim(),
+    hora: document.getElementById('prz-hora').value,
+    tipo: document.getElementById('prz-tipo').value,
+    urgencia: document.getElementById('prz-urgencia').value,
+    obs: document.getElementById('prz-obs').value.trim()
+  };
+  State.data.prazos.push(obj);
+  State.data.prazos.sort((a,b) => a.data.localeCompare(b.data));
+  DriveDB.save('prazos');
+  closeModal('modal-prazo');
+  Agenda.render();
+  toast('Prazo salvo!', 'success');
+}
+
+function deletePrazo(id) {
+  if (!confirm('Remover este compromisso?')) return;
+  State.data.prazos = State.data.prazos.filter(p => p.id !== id);
+  DriveDB.save('prazos');
+  Agenda.render();
+}
+
+const TIPO_BAR = { prazo:'', audiencia:'', reuniao:'green', protocolo:'amber', outro:'blue' };
+const TIPO_LABELS = { prazo:'Prazo processual', audiencia:'Audiência', reuniao:'Reunião', protocolo:'Protocolo/entrega', outro:'Outro' };
+
+const Agenda = {
+  year: new Date().getFullYear(),
+  month: new Date().getMonth(),
+  selectedDay: null,
+
+  prevMonth() {
+    this.month--;
+    if (this.month < 0) { this.month = 11; this.year--; }
+    this.render();
+  },
+  nextMonth() {
+    this.month++;
+    if (this.month > 11) { this.month = 0; this.year++; }
+    this.render();
+  },
+
+  render() {
+    this.renderCal();
+    this.renderEvents(this.selectedDay);
+  },
+
+  renderCal() {
+    const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    document.getElementById('cal-month-label').textContent = `${months[this.month]} ${this.year}`;
+    const grid = document.getElementById('cal-grid');
+    const days = ['D','S','T','Q','Q','S','S'];
+    let html = days.map(d => `<div class="cal-weekday">${d}</div>`).join('');
+    const firstDay = new Date(this.year, this.month, 1).getDay();
+    const daysInMonth = new Date(this.year, this.month+1, 0).getDate();
+    const todayDate = new Date().getDate();
+    const todayMonth = new Date().getMonth();
+    const todayYear = new Date().getFullYear();
+    for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${this.year}-${String(this.month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = d===todayDate && this.month===todayMonth && this.year===todayYear;
+      const hasEv = State.data.prazos.some(p => p.data===dateStr) || State.data.casos.some(c => c.prazo===dateStr);
+      html += `<div class="cal-day ${isToday?'today':''} ${hasEv&&!isToday?'has-event':''}" onclick="Agenda.selectDay('${dateStr}')">${d}</div>`;
+    }
+    grid.innerHTML = html;
+  },
+
+  selectDay(dateStr) {
+    this.selectedDay = dateStr;
+    this.renderCal();
+    this.renderEvents(dateStr);
+    document.getElementById('events-panel-title').textContent = `Compromissos em ${fmt(dateStr)}`;
+  },
+
+  renderEvents(dateFilter) {
+    const list = document.getElementById('events-list');
+    let prazos = dateFilter
+      ? State.data.prazos.filter(p => p.data === dateFilter)
+      : State.data.prazos.filter(p => {
+          const d = new Date(p.data+'T00:00:00');
+          const n = new Date(); n.setHours(0,0,0,0);
+          return d >= n;
+        }).slice(0,12);
+
+    // Add casos com prazo
+    let extraItems = dateFilter
+      ? State.data.casos.filter(c => c.prazo === dateFilter).map(c => ({
+          id: c.id, titulo: 'Prazo: '+c.nome, caso: c.cliente, data: c.prazo,
+          tipo: 'prazo', urgencia: isUrgent(c.prazo)?'urgente':'normal', _isCaso: true
+        }))
+      : [];
+
+    const items = [...prazos, ...extraItems].sort((a,b) => (a.hora||'23:59').localeCompare(b.hora||'23:59'));
+
+    if (items.length === 0) {
+      list.innerHTML = '<div class="empty-state" style="padding:24px;"><div class="empty-state-icon">📅</div><h3>Nenhum compromisso</h3><p>Clique em "+ Novo prazo" para adicionar.</p></div>';
+      return;
+    }
+    list.innerHTML = items.map(p => `
+      <div class="event-item">
+        <div class="event-time">${p.hora||'–'}<br><span style="font-size:10px;">${fmt(p.data)}</span></div>
+        <div class="event-bar ${TIPO_BAR[p.tipo]||''}"></div>
+        <div class="event-content" style="flex:1;">
+          <div class="ev-title">${p.urgencia==='urgente'?'⚠ ':''}${p.titulo}</div>
+          <div class="ev-sub">${p.caso||''} ${p.tipo?'· '+TIPO_LABELS[p.tipo]:''}</div>
+        </div>
+        ${!p._isCaso ? `<button class="btn btn-sm" onclick="deletePrazo('${p.id}')" style="align-self:center;">🗑</button>` : ''}
+      </div>
+    `).join('');
+  }
+};
+
+// ================================================================
+// DASHBOARD
+// ================================================================
+function renderDashboard() {
+  const casos = State.data.casos;
+  const ativos = casos.filter(c => c.status !== 'encerrado');
+  const prazos = State.data.prazos;
+  const thisWeek = [
+    ...prazos.filter(p => isThisWeek(p.data)),
+    ...casos.filter(c => c.prazo && isThisWeek(c.prazo)).map(c => ({data:c.prazo, titulo:'Prazo: '+c.nome, caso:c.cliente, urgencia:isUrgent(c.prazo)?'urgente':'normal'}))
+  ];
+
+  document.getElementById('kpi-casos').textContent = ativos.length;
+  document.getElementById('kpi-casos-sub').textContent = `${casos.filter(c=>c.prazo&&isUrgent(c.prazo)&&c.status!=='encerrado').length} com prazo urgente`;
+  document.getElementById('kpi-prazos').textContent = thisWeek.length;
+  document.getElementById('kpi-prazos-sub').textContent = prazos.filter(p=>p.urgencia==='urgente'&&isThisWeek(p.data)).length + ' urgentes';
+
+  const hon = State.data.honorarios;
+  const recebido = hon.filter(h=>h.status==='recebido'&&isThisMonth(h.venc||h.criado)).reduce((s,h)=>s+Number(h.valor||0),0);
+  const pendente = hon.filter(h=>(h.status==='pendente'||h.status==='parcial')).reduce((s,h)=>s+Number(h.valor||0),0);
+  document.getElementById('kpi-honorarios').textContent = fmtMoney(recebido);
+  document.getElementById('kpi-hon-sub').textContent = fmtMoney(pendente) + ' pendentes';
+  document.getElementById('kpi-clientes').textContent = State.data.clientes.length;
+  document.getElementById('kpi-cli-sub').textContent = `${State.data.clientes.filter(c=>{const d=new Date(c.desde||'');const n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length} novos este mês`;
+
+  // Casos recentes
+  const casosList = document.getElementById('dashboard-casos-list');
+  const recentes = ativos.slice(0,5);
+  if (recentes.length === 0) { casosList.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-state-icon" style="font-size:24px;">⚖️</div><p>Nenhum caso ativo</p></div>'; }
+  else {
+    casosList.innerHTML = `<table class="data-table"><thead><tr><th>Caso</th><th>Área</th><th>Status</th><th>Prazo</th></tr></thead><tbody>${recentes.map(c=>`
+      <tr onclick="editCaso('${c.id}')" style="cursor:pointer;">
+        <td><div class="td-main">${c.nome}</div><div class="td-sub">${c.cliente}</div></td>
+        <td>${badgeArea(c.area)}</td>
+        <td>${statusDot(c.status)}</td>
+        <td style="${isUrgent(c.prazo)?'color:var(--rb-red);font-weight:600;':''}">${fmt(c.prazo)}</td>
+      </tr>`).join('')}</tbody></table>`;
+  }
+
+  // Prazos
+  const prz = document.getElementById('dashboard-prazos-list');
+  const upcoming = [...prazos, ...ativos.filter(c=>c.prazo).map(c=>({titulo:'Prazo: '+c.nome,caso:c.cliente,data:c.prazo,urgencia:isUrgent(c.prazo)?'urgente':'normal'}))].filter(p=>{const d=new Date(p.data+'T00:00:00');const n=new Date();n.setHours(0,0,0,0);return d>=n;}).sort((a,b)=>a.data.localeCompare(b.data)).slice(0,5);
+  if (upcoming.length === 0) { prz.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">Sem prazos próximos</div>'; }
+  else {
+    prz.innerHTML = upcoming.map(p=>{
+      const d = p.data.split('-');
+      const mesNome = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][parseInt(d[1])-1];
+      const urgCls = p.urgencia==='urgente' ? 'urgent' : '';
+      const subTxt = p.urgencia==='urgente' ? '⚠ Urgente' : (p.caso||'');
+      return '<div class="prazo-item">'
+        + '<div class="prazo-date-box">'
+        + '<div class="prazo-day ' + urgCls + '">' + d[2] + '</div>'
+        + '<div class="prazo-month">' + mesNome + '</div>'
+        + '</div>'
+        + '<div class="prazo-info">'
+        + '<div class="case">' + p.titulo + '</div>'
+        + '<div class="tipo ' + urgCls + '">' + subTxt + '</div>'
+        + '</div></div>';
+    }).join('');
+  }
+
+  // Financeiro mini
+  const fin = document.getElementById('dashboard-financeiro');
+  const totalV = recebido + pendente;
+  const pct = totalV > 0 ? Math.round(recebido/totalV*100) : 0;
+  fin.innerHTML = `
+    <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:var(--text-muted);">Recebido</span><span style="color:var(--rb-green);font-weight:600;">${fmtMoney(recebido)}</span></div><div class="pct-bar"><div class="pct-fill" style="width:${pct}%;background:var(--rb-green);"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:var(--text-muted);">Pendente</span><span style="color:#B07020;font-weight:600;">${fmtMoney(pendente)}</span></div><div class="pct-bar"><div class="pct-fill" style="width:${100-pct}%;background:#B07020;"></div></div></div>
+  `;
+}
+
+// ================================================================
+// MODELOS
+// ================================================================
+const MODELOS = {
+  'cessao-direitos': { titulo: 'Contrato de Cessão de Direitos Autorais', prompt: 'Elabore um contrato completo de cessão de direitos autorais para músicos e artistas visuais, incluindo: qualificação das partes, objeto (obra cedida), natureza da cessão (total/parcial, exclusiva/não-exclusiva), território, prazo, contraprestação financeira, garantias, cláusula moral, rescisão e foro. Linguagem jurídica formal, adequado ao direito brasileiro (Lei 9.610/98).' },
+  'licenca-marca': { titulo: 'Contrato de Licenciamento de Marca', prompt: 'Elabore um contrato de licenciamento de marca para grupos culturais e artistas, incluindo: qualificação das partes, descrição da marca licenciada (com número de registro no INPI), escopo da licença, exclusividade, território, prazo, royalties/remuneração, qualidade e padrões, fiscalização, rescisão e foro. Adequado ao direito brasileiro (Lei 9.279/96).' },
+  'notificacao-violacao': { titulo: 'Notificação Extrajudicial – Violação de Propriedade Intelectual', prompt: 'Elabore uma notificação extrajudicial formal por violação de direitos de propriedade intelectual (direitos autorais ou marca). Inclua: identificação do notificante e notificado, descrição da violação, fundamento legal (LDA 9.610/98 ou LPI 9.279/96), exigências (cessação, indenização), prazo para resposta e consequências do descumprimento. Tom formal e assertivo.' },
+  'contrato-producao': { titulo: 'Contrato de Produção Musical', prompt: 'Elabore um contrato de produção musical entre artista/banda e produtor/estúdio, incluindo: qualificação das partes, objeto, obrigações de cada parte, cronograma, master recording rights, titularidade da obra produzida, percentuais de royalties, exclusividade, rescisão e foro. Adequado à lei brasileira.' },
+  'acordo-coautoria': { titulo: 'Acordo de Coautoria', prompt: 'Elabore um acordo de coautoria para obras criadas em colaboração (música, letra, obra literária ou visual), incluindo: identificação das partes e contribuições, percentuais de titularidade, regime de exploração da obra, divisão de receitas, decisões conjuntas, direito de preferência em caso de cessão, e resolução de conflitos. Base: Lei 9.610/98.' },
+  'registro-obra-inpi': { titulo: 'Guia: Registro de Obras e Marcas no INPI / Biblioteca Nacional', prompt: 'Elabore um guia jurídico completo e prático sobre como registrar obras intelectuais no Brasil: (1) registro de obras literárias/musicais/artísticas na Biblioteca Nacional ou EDA, (2) registro de marcas no INPI (etapas, prazos, custas, classes de Nice), (3) diferença entre direito autoral e marca, (4) dicas práticas para artistas independentes e grupos culturais.' },
+  'estatuto-osc': { titulo: 'Estatuto Social – Associação Cultural / OSC', prompt: 'Elabore um estatuto social completo para uma associação cultural sem fins lucrativos (OSC), adequado ao Código Civil e à Lei 13.019/2014, incluindo: denominação e sede, finalidade cultural/social, associados e requisitos, órgãos de direção (assembleia geral, diretoria, conselho fiscal), mandatos, deliberações, patrimônio, prestação de contas, dissolução e destinação do patrimônio.' },
+  'prestacao-contas': { titulo: 'Modelo de Relatório de Prestação de Contas', prompt: 'Elabore um modelo completo de relatório de prestação de contas para uma OSC ou associação cultural, para apresentação a órgãos financiadores, prefeituras ou editais públicos, incluindo: identificação da entidade, período, resumo executivo, descrição das atividades realizadas, demonstrativo financeiro (receitas e despesas), memória de cálculo, documentação comprobatória necessária e declarações finais.' },
+  'projeto-cultural-edital': { titulo: 'Modelo de Projeto Cultural para Edital (PROAC / Lei Rouanet)', prompt: 'Elabore um modelo completo de projeto cultural para submissão em editais como PROAC (SP) ou Lei Rouanet, incluindo: identificação do proponente, resumo executivo, justificativa, objetivos (geral e específicos), metodologia, cronograma de atividades, público-alvo, impacto social/cultural esperado, orçamento detalhado e contrapartidas. Linguagem clara e adequada a editais públicos.' },
+  'convenio-parceria': { titulo: 'Termo de Convênio / Parceria – OSC e Ente Público', prompt: 'Elabore um Termo de Parceria ou Convênio entre uma Organização da Sociedade Civil (OSC) e um ente público (prefeitura, estado ou autarquia), conforme a Lei 13.019/2014, incluindo: qualificação das partes, objeto, obrigações da OSC e do órgão público, repasse de recursos, prestação de contas, prazo, monitoramento, rescisão e foro.' },
+  'ata-assembleia': { titulo: 'Ata de Assembleia Geral – Associação Cultural', prompt: 'Elabore um modelo de ata de assembleia geral de uma associação cultural, para aprovação de contas e/ou eleição de nova diretoria, incluindo: cabeçalho com data, local e participantes, abertura, leitura e aprovação da pauta, deliberações (aprovação de relatório financeiro, eleição de diretoria), encerramento e assinaturas. Tom formal e adequado a registro em cartório.' },
+  'alvara-cultural': { titulo: 'Requerimento de Alvará para Espaço / Evento Cultural', prompt: 'Elabore um modelo de requerimento de alvará de funcionamento para espaço cultural ou autorização para realização de evento cultural junto ao Município, incluindo: identificação do requerente, descrição do espaço/evento, documentos necessários, base legal (Lei federal de cultura, legislação municipal tipo), solicitações específicas (prazo, horário de funcionamento, capacidade) e justificativa cultural.' },
+  'contrato-show': { titulo: 'Contrato de Prestação de Serviços Artísticos – Show / Cachê', prompt: 'Elabore um contrato completo de prestação de serviços artísticos para shows e apresentações, incluindo: qualificação das partes (artista/banda e contratante), descrição do serviço, data, local e horário, cachê e forma de pagamento, rider técnico, transporte e hospedagem, cancelamento e multas, exclusividade na data, uso de imagem e divulgação, e foro. Adequado à lei brasileira.' },
+  'acordo-trabalhista': { titulo: 'Acordo Extrajudicial – Rescisão de Contrato de Trabalho', prompt: 'Elabore um acordo extrajudicial trabalhista para rescisão de vínculo empregatício, conforme art. 855-B e seguintes da CLT (incluindo quitação via homologação judicial), incluindo: qualificação das partes, histórico da relação de emprego, verbas rescisórias detalhadas, valor total acordado, parcelas, quitação ampla e irrestrita, e cláusulas de confidencialidade. Linguagem jurídica formal.' },
+  'contrato-honorarios': { titulo: 'Contrato de Honorários Advocatícios', prompt: 'Elabore um contrato completo de honorários advocatícios conforme o Estatuto da OAB (Lei 8.906/94) e o CPC, incluindo: qualificação das partes, objeto e descrição dos serviços, honorários fixos ou percentuais, honorários de êxito e percentual, forma de pagamento, despesas processuais, rescisão, confidencialidade, sigilo profissional, e foro. Adequado para atuação em demandas culturais e trabalhistas.' },
+  'consultoria-juridica': { titulo: 'Contrato de Assessoria Jurídica Mensal', prompt: 'Elabore um contrato de assessoria jurídica mensal para entidades culturais e associações (OSCs), incluindo: qualificação das partes, escopo dos serviços (consultoria preventiva, análise de contratos, participação em reuniões, orientações gerais), remuneração mensal, prazo, renovação automática, limites do serviço (o que não está incluso), sigilo, rescisão e foro.' },
+  'procuracao': { titulo: 'Procuração Ad Judicia et Extra – Poderes Gerais e Específicos', prompt: 'Elabore um modelo de procuração ad judicia et extra com poderes gerais e poderes especiais para atuação em demandas culturais, trabalhistas e de propriedade intelectual, incluindo: qualificação do outorgante e outorgado (advogado), poderes gerais (receber, dar quitação, substabelecer), poderes especiais confessórios, cláusulas específicas para negociação de direitos autorais e culturais.' },
+  'notificacao-extrajudicial': { titulo: 'Notificação Extrajudicial – Cobrança e Acordos', prompt: 'Elabore uma notificação extrajudicial para cobrança de valores ou cumprimento de obrigação contratual, incluindo: identificação do notificante e notificado, descrição do crédito ou obrigação inadimplida, fundamento legal e contratual, valor atualizado (principal, juros, multa), prazo para regularização, e consequências do descumprimento (protesto, ação judicial, negativação). Tom formal e assertivo.' }
+};
+
+function gerarModelo(key) {
+  const m = MODELOS[key];
+  if (!m) return;
+  const win = window.open('', '_blank', 'width=800,height=700');
+  win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${m.titulo}</title>
+  <style>body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 24px;color:#2C1A0E;line-height:1.8;}
+  h1{font-size:20px;color:#8B1A1A;border-bottom:2px solid #8B1A1A;padding-bottom:8px;margin-bottom:24px;}
+  .loading{text-align:center;padding:48px;color:#7A6A5A;font-size:15px;}
+  .spinner{border:3px solid #E8E4DC;border-top-color:#8B1A1A;border-radius:50%;width:32px;height:32px;animation:spin .8s linear infinite;margin:16px auto;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .content{white-space:pre-wrap;font-size:14px;}
+  .btn-print{background:#8B1A1A;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:13px;margin-top:20px;}
+  </style></head><body>
+  <h1>♟ RB Advocacia – ${m.titulo}</h1>
+  <div id="out"><div class="loading"><div class="spinner"></div><p>Gerando documento jurídico com IA...</p></div></div>
+  <script>
+  (async()=>{
+    try{
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:'${m.prompt.replace(/'/g,"\\'")} Formate com seções e cláusulas numeradas. Use linguagem jurídica brasileira formal. Inicie diretamente com o documento, sem introdução.'}]})});
+      const d=await r.json();
+      const txt=d.content?.[0]?.text||'Erro ao gerar documento.';
+      document.getElementById('out').innerHTML='<div class="content">'+txt.replace(/</g,'&lt;')+'</div><button class="btn-print" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>';
+    }catch(e){document.getElementById('out').innerHTML='<p style="color:red;">Erro: '+e.message+'</p>';}
+  })();
+  <\/script></body></html>`);
+  win.document.close();
+}
+
+// ================================================================
+// RENDER ALL
+// ================================================================
+function renderAll() {
+  renderDashboard();
+  if (State.currentPage === 'casos') renderCasos();
+  if (State.currentPage === 'clientes') renderClientes();
+  if (State.currentPage === 'honorarios') renderHonorarios();
+  if (State.currentPage === 'agenda') Agenda.render();
+}
+
+// ================================================================
+// MODO DEMO (sem Google Drive – dados locais)
+// ================================================================
+function initDemo() {
+  // Dados de exemplo para demonstração offline
+  State.data.casos = [
+    {id:'c1',nome:'Banda Quilombo de Sons',cliente:'Quilombo de Sons',area:'pi',status:'andamento',prazo:'2026-07-04',desc:'Contrato de cessão de direitos',obs:'',criado:'2026-06-01'},
+    {id:'c2',nome:'Registro de marca',cliente:'Coletivo Maracatu Lua Cheia',area:'pi',status:'analise',prazo:'2026-07-10',desc:'Registro INPI',obs:'',criado:'2026-06-15'},
+    {id:'c3',nome:'Elaboração de estatuto',cliente:'Assoc. Cultural Afoxé',area:'social',status:'andamento',prazo:'2026-07-15',desc:'',obs:'',criado:'2026-06-10'},
+    {id:'c4',nome:'Rescisão contratual',cliente:'João Mendes',area:'trabalhista',status:'andamento',prazo:'2026-07-03',desc:'',obs:'',criado:'2026-06-28'},
+    {id:'c5',nome:'Edital PROAC',cliente:'ONG Baobá Cultural',area:'social',status:'analise',prazo:'2026-07-22',desc:'',obs:'',criado:'2026-06-20'}
+  ];
+  State.data.clientes = [
+    {id:'cl1',nome:'Quilombo de Sons',tipo:'Grupo Cultural',email:'contato@quilombo.com',tel:'(19) 98888-0001',desde:'2024-03-01'},
+    {id:'cl2',nome:'Coletivo Maracatu Lua Cheia',tipo:'Grupo Cultural',email:'',tel:'',desde:'2025-01-15'},
+    {id:'cl3',nome:'Assoc. Cultural Afoxé',tipo:'Associação',email:'afoxe@cultural.org',tel:'(19) 97777-0002',desde:'2025-06-01'},
+    {id:'cl4',nome:'João Mendes',tipo:'Artista',email:'joao@produtora.com',tel:'(19) 96666-0003',desde:'2026-06-28'},
+    {id:'cl5',nome:'ONG Baobá Cultural',tipo:'Associação',email:'baoba@ong.org.br',tel:'(19) 95555-0004',desde:'2023-08-01'}
+  ];
+  State.data.honorarios = [
+    {id:'h1',cliente:'Quilombo de Sons',servico:'Contrato de cessão de direitos',valor:2500,venc:'2026-06-15',status:'recebido',criado:'2026-06-01'},
+    {id:'h2',cliente:'ONG Baobá Cultural',servico:'Assessoria jurídica mensal',valor:1800,venc:'2026-07-01',status:'recebido',criado:'2026-06-01'},
+    {id:'h3',cliente:'Assoc. Cultural Afoxé',servico:'Elaboração de estatuto',valor:1200,venc:'2026-06-20',status:'recebido',criado:'2026-06-10'},
+    {id:'h4',cliente:'Coletivo Maracatu Lua Cheia',servico:'Registro de marca – INPI',valor:900,venc:'2026-07-10',status:'pendente',criado:'2026-06-15'},
+    {id:'h5',cliente:'João Mendes',servico:'Rescisão contratual',valor:1300,venc:'2026-06-28',status:'atrasado',criado:'2026-06-28'}
+  ];
+  State.data.prazos = [
+    {id:'p1',titulo:'Contestação trabalhista',caso:'João Mendes',data:'2026-07-03',hora:'09:00',tipo:'prazo',urgencia:'urgente'},
+    {id:'p2',titulo:'Audiência de instrução',caso:'Banda Quilombo de Sons',data:'2026-07-04',hora:'14:00',tipo:'audiencia',urgencia:'normal'},
+    {id:'p3',titulo:'Protocolo INPI',caso:'Coletivo Maracatu Lua Cheia',data:'2026-07-07',hora:'',tipo:'protocolo',urgencia:'normal'},
+    {id:'p4',titulo:'Revisão de estatuto',caso:'Assoc. Cultural Afoxé',data:'2026-07-10',hora:'',tipo:'prazo',urgencia:'normal'},
+    {id:'p5',titulo:'Reunião de orientação – prestação de contas',caso:'ONG Baobá Cultural',data:'2026-07-15',hora:'10:30',tipo:'reuniao',urgencia:'normal'}
+  ];
+}
+
+// ================================================================
+// INICIALIZAÇÃO
+// ================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  Agenda.render();
+});
+</script>
+</body>
+</html>
